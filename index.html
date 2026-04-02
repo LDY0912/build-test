@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인생역전! 로또 번호 추첨기</title>
+    <title>인생역전! 로또 & AI 판별기</title>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -27,7 +27,7 @@
             color: var(--text-color);
         }
 
-        .container {
+        .container, .contact-section, .ai-section {
             background: var(--container-bg);
             padding: 40px;
             border-radius: 20px;
@@ -38,8 +38,9 @@
             margin-bottom: 30px;
         }
 
-        h1 { margin-bottom: 30px; font-size: 2rem; color: #222; }
+        h1, h2 { margin-bottom: 20px; color: #222; }
 
+        /* 로또 스타일 */
         .balls-container {
             display: flex;
             justify-content: center;
@@ -47,110 +48,49 @@
             margin-bottom: 30px;
             min-height: 60px;
         }
-
         .ball {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: white;
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 1.2rem; color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: scale(0);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
         .ball.show { transform: scale(1); }
-
         .color-1 { background-color: #fbc400; }
         .color-2 { background-color: #69c8f2; }
         .color-3 { background-color: #ff7272; }
         .color-4 { background-color: #aaa; }
         .color-5 { background-color: #b0d840; }
 
-        .draw-btn {
+        .draw-btn, .submit-btn, .ai-btn {
             background-color: var(--btn-color);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            width: 100%;
+            color: white; border: none; padding: 15px 30px;
+            border-radius: 30px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: background 0.2s, transform 0.1s; width: 100%;
         }
+        .draw-btn:hover, .submit-btn:hover, .ai-btn:hover { background-color: var(--btn-hover); }
 
-        .draw-btn:hover { background-color: var(--btn-hover); }
-        .draw-btn:active { transform: scale(0.98); }
-
-        .history {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #777;
-            max-height: 100px;
-            overflow-y: auto;
+        /* AI 섹션 스타일 */
+        #image-preview {
+            width: 100%; max-height: 300px; border-radius: 10px;
+            margin-bottom: 20px; display: none; object-fit: contain;
+            background: #eee;
         }
-
-        /* 제휴 문의 폼 스타일 */
-        .contact-section {
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            max-width: 500px;
-            width: 90%;
+        #label-container {
+            margin-top: 20px; font-size: 1.2rem; font-weight: bold; color: var(--btn-color);
         }
-
-        .contact-section h2 {
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-align: center;
+        .file-input-label {
+            display: inline-block; padding: 10px 20px; background: #6c757d;
+            color: white; border-radius: 10px; cursor: pointer; margin-bottom: 15px;
         }
+        #loading-msg { display: none; color: #666; margin-bottom: 10px; }
 
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
+        /* 폼 스타일 */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
         .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-family: inherit;
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
         }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .submit-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-        }
-
-        .submit-btn:hover { background-color: #218838; }
     </style>
 </head>
 <body>
@@ -162,64 +102,55 @@
         <div class="history" id="history">최근 추첨 번호가 여기에 표시됩니다.</div>
     </div>
 
-    <!-- 제휴 문의 섹션 -->
+    <!-- AI 판별기 섹션 -->
+    <div class="ai-section">
+        <h2>🐶 강아지 vs 고양이 판별 (AI)</h2>
+        <div id="loading-msg">AI 모델을 불러오는 중...</div>
+        <label class="file-input-label" for="image-selector">📷 사진 선택하기</label>
+        <input type="file" id="image-selector" accept="image/*" style="display:none;">
+        <img id="image-preview" src="#" alt="미리보기">
+        <button class="ai-btn" id="predict-btn" disabled>분석하기</button>
+        <div id="label-container">결과가 여기에 표시됩니다.</div>
+    </div>
+
     <div class="contact-section">
         <h2>🤝 제휴 문의</h2>
         <form action="https://formspree.io/f/xreoagkr" method="POST">
-            <div class="form-group">
-                <label for="name">성함/업체명</label>
-                <input type="text" id="name" name="name" required placeholder="예: 홍길동 / (주)로또컴퍼니">
-            </div>
-            <div class="form-group">
-                <label for="email">이메일 주소</label>
-                <input type="email" id="email" name="_replyto" required placeholder="example@email.com">
-            </div>
-            <div class="form-group">
-                <label for="message">문의 내용</label>
-                <textarea id="message" name="message" required placeholder="제휴 관련 내용을 적어주세요."></textarea>
-            </div>
+            <div class="form-group"><label>성함/업체명</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>이메일 주소</label><input type="email" name="_replyto" required></div>
+            <div class="form-group"><label>문의 내용</label><textarea name="message" required></textarea></div>
             <button type="submit" class="submit-btn">문의하기</button>
         </form>
     </div>
 
-    <!-- 댓글 섹션 -->
-    <div class="contact-section" style="margin-top: 30px;">
+    <div class="contact-section">
         <h2>💬 댓글</h2>
         <div id="disqus_thread"></div>
-        <script>
-            (function() { // DON'T EDIT BELOW THIS LINE
-            var d = document, s = d.createElement('script');
-            s.src = 'https://buildtest-1.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
-            (d.head || d.body).appendChild(s);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 
+    <!-- TensorFlow.js 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
     <script>
+        // 로또 로직
         const ballsContainer = document.getElementById('balls');
         const drawBtn = document.getElementById('draw-btn');
         const historyDiv = document.getElementById('history');
 
         function getBallColorClass(num) {
-            if (num <= 10) return 'color-1';
-            if (num <= 20) return 'color-2';
-            if (num <= 30) return 'color-3';
-            if (num <= 40) return 'color-4';
+            if (num <= 10) return 'color-1'; if (num <= 20) return 'color-2';
+            if (num <= 30) return 'color-3'; if (num <= 40) return 'color-4';
             return 'color-5';
         }
 
-        function drawNumbers() {
+        drawBtn.addEventListener('click', () => {
             const numbers = [];
             while (numbers.length < 6) {
                 const num = Math.floor(Math.random() * 45) + 1;
-                if (!numbers.includes(num)) {
-                    numbers.push(num);
-                }
+                if (!numbers.includes(num)) numbers.push(num);
             }
             numbers.sort((a, b) => a - b);
-
             ballsContainer.innerHTML = '';
             numbers.forEach((num, index) => {
                 setTimeout(() => {
@@ -230,17 +161,67 @@
                     setTimeout(() => ball.classList.add('show'), 10);
                 }, index * 150);
             });
-
-            const time = new Date().toLocaleTimeString();
             const historyItem = document.createElement('p');
-            historyItem.textContent = `[${time}] ${numbers.join(', ')}`;
-            if (historyDiv.firstChild && historyDiv.firstChild.nodeType === 3) {
-                historyDiv.innerHTML = '';
-            }
+            historyItem.textContent = `[${new Date().toLocaleTimeString()}] ${numbers.join(', ')}`;
             historyDiv.prepend(historyItem);
+        });
+
+        // AI 판별기 로직
+        const URL = "https://teachablemachine.withgoogle.com/models/EvFQgzXK7/";
+        let model, labelContainer, maxPredictions;
+
+        async function initAI() {
+            document.getElementById('loading-msg').style.display = 'block';
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            document.getElementById('predict-btn').disabled = false;
+            document.getElementById('loading-msg').style.display = 'none';
         }
 
-        drawBtn.addEventListener('click', drawNumbers);
+        initAI();
+
+        const imageSelector = document.getElementById('image-selector');
+        const imagePreview = document.getElementById('image-preview');
+
+        imageSelector.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('predict-btn').addEventListener('click', async () => {
+            if (!imagePreview.src || imagePreview.src.includes('#')) {
+                alert("사진을 먼저 선택해주세요!"); return;
+            }
+            const prediction = await model.predict(imagePreview);
+            let bestMatch = { className: "", probability: 0 };
+            
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability > bestMatch.probability) {
+                    bestMatch = prediction[i];
+                }
+            }
+            
+            const resultEmoji = bestMatch.className.includes("강아지") ? "🐶" : "🐱";
+            document.getElementById('label-container').innerHTML = 
+                `${resultEmoji} 분석 결과: <strong>${bestMatch.className}</strong> (${(bestMatch.probability * 100).toFixed(2)}%)`;
+        });
+
+        // Disqus
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://buildtest-1.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
     </script>
 </body>
 </html>
